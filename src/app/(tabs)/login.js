@@ -9,34 +9,53 @@ import {
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function Login() {
+
+
+
+const Login = () => {
+  const [form, setForm] = useState({ username: '', password: '' });
+
   const router = useRouter();
-
-  const [form, setForm] = useState({
-    email: '',
-    senha: '',
-  });
-
   const handleInputChange = (field, value) => {
     setForm({ ...form, [field]: value });
   };
 
   const handleLogin = async () => {
-    console.log("Dados enviados para o backend:", form); // Verifique o formato dos dados
+    console.log("Dados enviados para o backend:", form);
+  
     try {
       const response = await fetch('http://localhost:5000/login', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',  // Certifique-se de que o tipo de conteúdo está correto
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(form),
       });
   
       const data = await response.json();
-      if (response.ok) {
+      console.log('Resposta do backend:', data);  // Verifique aqui a resposta do backend
+  
+      if (response.ok && data.accessToken) {
         console.log('Login bem-sucedido:', data);
-        alert('Login realizado com sucesso!');
+        
+        const token = response.data.accessToken;
+        console.log("Token recebido do backend:", token);
+        await AsyncStorage.setItem('accessToken', token);
+        console.log("Token salvo no AsyncStorage:", token);
+        // Salve o token no AsyncStorage
+        await AsyncStorage.setItem('accessToken', data.accessToken);
+        console.log("Token salvo no AsyncStorage:", data.accessToken); // Verifique se o token foi salvo corretamente
+  
+        // Salve os dados do usuário
+        await AsyncStorage.setItem('user', JSON.stringify(data.user));
+  
+        // Alerta de boas-vindas
+        alert(`Bem-vindo(a), ${data.user.name}!`);
+  
+        // Navegar para a página de perfil
+        router.push('/profile');
       } else {
         console.error('Erro no login:', data);
         alert(data.error || 'Erro desconhecido');
@@ -46,6 +65,7 @@ export default function Login() {
       alert('Erro ao tentar se conectar ao servidor');
     }
   };
+  
 
   return (
     <ScrollView contentContainerStyle={styles.container}>

@@ -1,26 +1,57 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, Modal, TextInput, Button } from 'react-native';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import jwt_decode from 'jwt-decode'; // Certifique-se de importar jwt-decode
 import Header from '../../components/Header';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function SideBarProfile() {
   const [showModal, setShowModal] = useState(false); // Controla o estado do modal
-  const [email, setEmail] = useState('email-user'); // Exemplo de estado para dados do usuário
-  const [username, setUsername] = useState('Usuário'); // Exemplo de estado para dados do usuário
+  const [email, setEmail] = useState(''); // Armazena o email do usuário
+  const [username, setUsername] = useState(''); // Armazena o nome do usuário
   const router = useRouter();
+  const [userInfo, setUserInfo] = useState();
 
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const token = await AsyncStorage.getItem('accessToken');
+        console.log("Token recuperado:", token);  // Verifique o token
+  
+        if (token) {
+          const decodedToken = jwt_decode(token);
+          console.log("Decoded token:", decodedToken);  // Verifique os dados do token
+  
+          if (decodedToken && decodedToken.name && decodedToken.email) {
+            setUserInfo({
+              name: decodedToken.name,
+              email: decodedToken.email,
+            });
+            console.log("User info set:", decodedToken.name, decodedToken.email);  // Verifique o valor
+          } else {
+            console.log("Nome ou email não encontrado no token.");
+          }
+        } else {
+          console.log("Token não encontrado.");
+        }
+      } catch (error) {
+        console.error('Erro ao carregar o perfil:', error);
+      }
+    };
+  
+    fetchUserProfile();
+  }, []);
+  
   const handleProfile = () => {
     router.push('/inserirLocal');
   };
 
-  // Função para redirecionar para a página de edição de dados
   const handleEditUser = () => {
     router.push('/putUser'); // Redireciona para a página /putUser
   };
 
   const handleSaveChanges = () => {
-    // Aqui você pode adicionar a lógica para salvar as alterações do usuário
     console.log('Alterações salvas');
     setShowModal(false); // Fecha o modal após salvar
   };
@@ -35,15 +66,16 @@ export default function SideBarProfile() {
             source={require('../../../assets/iconProfile.png')}
             style={styles.perfilImage}
           />
-          <View style={styles.carlinhos}>
-            <Text style={styles.username}>{username}</Text>
-            <Text style={styles.ola}>{email}</Text>
+           <View style={styles.carlinhos}>
+            <Text style={styles.username}>{userInfo?.name || 'Usuário'}</Text> {/* Exibe o nome */}
+            <Text style={styles.ola}>{userInfo?.email || 'email-user'}</Text> {/* Exibe o email */}
           </View>
-          <TouchableOpacity onPress={handleEditUser}>  {/* Alterado aqui */}
+          <TouchableOpacity onPress={handleEditUser}>
             <Ionicons name="pencil" size={20} color="black" style={styles.icon} />
           </TouchableOpacity>
         </View>
       </View>
+      
 
       <br />
 
@@ -75,7 +107,6 @@ export default function SideBarProfile() {
         </TouchableOpacity>
       </View>
 
-      {/* Modal para editar dados do usuário */}
       <Modal
         visible={showModal}
         animationType="slide"
@@ -111,13 +142,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
-  header: {
-    backgroundColor: '#0097B2',
-    width: '100%',
-    height: '50%',
-    alignItems: 'center',
-    position: 'absolute',
-  },
   perfilContainer: {
     alignItems: 'flex-start',
     marginTop: 40,
@@ -129,12 +153,12 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 40,
     marginRight: 20,
-    marginLeft: 20
+    marginLeft: 20,
   },
   ola: {
     fontSize: 18,
     marginTop: 10,
-    marginRight: 160
+    marginRight: 160,
   },
   username: {
     fontSize: 18,
@@ -170,20 +194,20 @@ const styles = StyleSheet.create({
   Textex: {
     color: 'white',
     fontSize: 16,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
   sair: {
     justifyContent: 'flex-end',
-    paddingBottom: 50
+    paddingBottom: 50,
   },
   carlinhos: {
-    flexDirection: 'column'
+    flexDirection: 'column',
   },
   icon: {
     marginLeft: 10,
-    position: "fixed",
+    position: 'fixed',
     top: 150,
-    right: 10
+    right: 10,
   },
   modalOverlay: {
     flex: 1,
@@ -201,6 +225,16 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     marginBottom: 15,
+  },
+  ola: {
+    fontSize: 18,
+    marginTop: 10,
+    marginRight: 160,
+  },
+  username: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 10,
   },
   input: {
     height: 40,
