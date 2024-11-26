@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  Alert,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -13,6 +14,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Login = () => {
   const [form, setForm] = useState({ email: '', senha: '' });
+  const [isLoading, setIsLoading] = useState(false); // Para controlar o estado de carregamento
   const router = useRouter();
 
   const handleInputChange = (field, value) => {
@@ -20,6 +22,12 @@ const Login = () => {
   };
 
   const handleLogin = async () => {
+    if (!form.email || !form.senha) {
+      Alert.alert("Campos obrigatórios", "Por favor, preencha o e-mail e a senha.");
+      return;
+    }
+
+    setIsLoading(true);
     console.log("Dados enviados para o backend:", form);
 
     try {
@@ -37,32 +45,30 @@ const Login = () => {
       if (response.ok && data.accessToken) {
         console.log('Login bem-sucedido:', data);
 
-       
         await AsyncStorage.setItem('accessToken', data.accessToken);
         await AsyncStorage.setItem('user', JSON.stringify(data.user));
 
-       
-        alert(`Bem-vindo(a), ${data.user.name}!`);
+        Alert.alert(`Bem-vindo(a), ${data.user.name}!`);
 
         router.push('/profile');
       } else {
         console.error('Erro no login:', data);
-        alert(data.error || 'Erro desconhecido');
+        Alert.alert(data.error || 'Erro desconhecido');
       }
     } catch (error) {
       console.error('Erro de rede:', error);
-      alert('Erro ao tentar se conectar ao servidor');
+      Alert.alert('Erro ao tentar se conectar ao servidor');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      
       <View style={styles.header}>
         <Text style={styles.headerText}>SPORT'S MAP</Text>
       </View>
 
-     
       <View style={styles.formContainer}>
         <Feather name="log-in" size={50} color="#0097B2" style={styles.icon} />
         <Text style={styles.title}>Entrar</Text>
@@ -85,15 +91,21 @@ const Login = () => {
           onChangeText={(value) => handleInputChange('senha', value)}
         />
 
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Entrar</Text>
+        <TouchableOpacity
+          style={[styles.button, isLoading && styles.buttonDisabled]}
+          onPress={handleLogin}
+          disabled={isLoading}
+        >
+          <Text style={styles.buttonText}>
+            {isLoading ? 'Carregando...' : 'Entrar'}
+          </Text>
         </TouchableOpacity>
 
         <Text style={styles.footerText}>
           Não tem uma conta?{' '}
           <Text
             style={styles.link}
-            onPress={() => router.push('/register')} 
+            onPress={() => router.push('/register')}
           >
             Criar conta
           </Text>
@@ -133,7 +145,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 4,
-    marginTop: '50%', 
+    marginTop: '50%',
     alignSelf: 'center',
   },
   icon: {
@@ -169,6 +181,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 10,
   },
+  buttonDisabled: {
+    backgroundColor: '#80C7D4', // Cor mais clara para o botão desabilitado
+  },
   buttonText: {
     color: '#fff',
     fontSize: 16,
@@ -184,3 +199,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+
+export default Login;

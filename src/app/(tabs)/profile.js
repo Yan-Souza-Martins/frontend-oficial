@@ -7,7 +7,7 @@ import Header from '../../components/Header';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function SideBarProfile() {
-  const [showModal, setShowModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false); // Modal de exclusão
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const router = useRouter();
@@ -36,18 +36,9 @@ export default function SideBarProfile() {
     fetchUserProfile();
   }, []);
 
-  const handleProfile = () => {
-    router.push('/inserirLocal');
-  };
-
-  const handleEditUser = () => {
-    setShowModal(true); 
-  };
-
-  const handleSaveChanges = () => {
-    console.log('Alterações salvas');
-    setUserInfo({ ...userInfo, name: username, email });
-    setShowModal(false); 
+  const handleDeleteAccount = () => {
+    console.log('Conta excluída'); // Aqui pode ser feita a lógica para exclusão da conta
+    setShowDeleteModal(false);
   };
 
   return (
@@ -64,7 +55,7 @@ export default function SideBarProfile() {
             <Text style={styles.username}>{userInfo.name || 'Usuário'}</Text>
             <Text style={styles.ola}>{userInfo.email || 'email-user'}</Text>
           </View>
-          <TouchableOpacity onPress={handleEditUser}>
+          <TouchableOpacity onPress={() => router.push('/putUser')}>
             <Ionicons name="pencil" size={20} color="black" style={styles.icon} />
           </TouchableOpacity>
         </View>
@@ -72,7 +63,7 @@ export default function SideBarProfile() {
 
       <View style={{ height: 20 }} />
 
-      <TouchableOpacity style={styles.textContainer} onPress={handleProfile}>
+      <TouchableOpacity style={styles.textContainer} onPress={() => router.push('/inserirLocal')}>
         <Text style={styles.Text}>Inserir Local Esportivo</Text>
       </TouchableOpacity>
 
@@ -95,34 +86,39 @@ export default function SideBarProfile() {
       </TouchableOpacity>
 
       <View style={styles.excluir}>
-        <TouchableOpacity style={styles.textContainer2}>
+        <TouchableOpacity
+          style={styles.textContainer2}
+          onPress={() => setShowDeleteModal(true)}
+        >
           <Text style={styles.Textex}>Excluir minha conta</Text>
         </TouchableOpacity>
       </View>
 
+      {/* Modal de Exclusão */}
       <Modal
-        visible={showModal}
-        animationType="slide"
+        visible={showDeleteModal}
+        animationType="fade"
         transparent
-        onRequestClose={() => setShowModal(false)}
+        onRequestClose={() => setShowDeleteModal(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Editar Dados</Text>
-            <TextInput
-              style={styles.input}
-              value={username}
-              onChangeText={setUsername}
-              placeholder="Nome de Usuário"
-            />
-            <TextInput
-              style={styles.input}
-              value={email}
-              onChangeText={setEmail}
-              placeholder="E-mail"
-            />
-            <Button title="Salvar" onPress={handleSaveChanges} />
-            <Button title="Cancelar" onPress={() => setShowModal(false)} />
+          <View style={[styles.modalContent, styles.modalDeleteContent]}>
+            <Text style={styles.modalTitle}>Confirmação</Text>
+            <Text style={styles.modalText}>Tem certeza de que deseja excluir sua conta?</Text>
+            <View style={styles.modalButtonContainer}>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalButtonConfirm]}
+                onPress={handleDeleteAccount}
+              >
+                <Text style={styles.modalButtonText}>Sim</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalButtonCancel]}
+                onPress={() => setShowDeleteModal(false)}
+              >
+                <Text style={styles.modalButtonText}>Não</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -189,18 +185,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  sair: {
-    justifyContent: 'flex-end',
-    paddingBottom: 50,
-  },
   carlinhos: {
     flexDirection: 'column',
-  },
-  icon: {
-    marginLeft: 10,
-    position: 'fixed',
-    top: 150,
-    right: 10,
   },
   modalOverlay: {
     flex: 1,
@@ -215,27 +201,40 @@ const styles = StyleSheet.create({
     width: '80%',
     alignItems: 'center',
   },
-  modalTitle: {
-    fontSize: 20,
-    marginBottom: 15,
+  modalDeleteContent: {
+    padding: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    width: '80%',
   },
-  ola: {
-    fontSize: 18,
-    marginTop: 10,
-    marginRight: 160,
+  modalText: {
+    fontSize: 16,
+    marginBottom: 20,
+    textAlign: 'center',
   },
-  username: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginTop: 10,
-  },
-  input: {
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    marginBottom: 15,
-    paddingHorizontal: 10,
+  modalButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     width: '100%',
+  },
+  modalButton: {
+    flex: 1,
+    marginHorizontal: 5,
+    paddingVertical: 10,
+    alignItems: 'center',
     borderRadius: 5,
+  },
+  modalButtonConfirm: {
+    backgroundColor: 'red',
+  },
+  modalButtonCancel: {
+    backgroundColor: '#dcdcdc',
+  },
+  modalButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
