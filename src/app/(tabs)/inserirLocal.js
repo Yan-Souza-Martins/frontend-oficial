@@ -8,21 +8,20 @@ export default function SportsSelection() {
   const [sports, setSports] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Função para buscar as modalidades do backend
   const fetchSports = async () => {
     try {
-      const response = await fetch('http://localhost:5000/modalidades'); // URL backend
+      const response = await fetch('http://localhost:5000/modalidades'); 
       const data = await response.json();
-      setSports(data); // Atualiza o estado com as modalidades
-      setLoading(false); // Desativa o carregamento após obter os dados
+      setSports(data); 
+      setLoading(false); 
     } catch (error) {
       console.error('Erro ao buscar modalidades:', error);
-      setLoading(false); // Desativa o carregamento em caso de erro
+      setLoading(false); 
     }
   };
 
   useEffect(() => {
-    fetchSports(); // Chama a função para buscar as modalidades quando o componente for montado
+    fetchSports(); 
   }, []);
 
   if (loading) {
@@ -37,12 +36,12 @@ export default function SportsSelection() {
   return (
     <View style={styles.container}>
       <Header texto={"Qual esporte está sendo praticado?"}/>
-      {/* Lista de modalidades */}
+     
       <View style={styles.carlinhos2}>
         <View style={styles.listContainer}>
         {sports.map((sport, index) => (
           <TouchableOpacity key={index} style={styles.sportButton}>
-            <Text style={styles.sportText}>{sport.nome}</Text> {/* Exibe o nome da modalidade */}
+            <Text style={styles.sportText}>{sport.nome}</Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -61,7 +60,7 @@ const styles = StyleSheet.create({
   listContainer: {
     backgroundColor: '#0097B2',
     borderRadius: 10,
-    marginTop: 20,  // Ajustado para maior espaçamento entre o header e a lista
+    marginTop: 20,  
     paddingVertical: 10,
     paddingHorizontal: 10,
     width: '85%',

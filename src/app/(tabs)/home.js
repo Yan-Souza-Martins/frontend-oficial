@@ -1,39 +1,38 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, StyleSheet, FlatList } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
-import { useRouter } from 'expo-router'; // Importando o useRouter do expo-router
+import { useRouter } from 'expo-router'; 
 
 const Home = () => {
-  const [sports, setSports] = useState([]); // Lista de esportes
-  const [loading, setLoading] = useState(false); // Estado de carregamento
-  const [listVisible, setListVisible] = useState(false); // Controle da visibilidade da lista
-  const [iconName, setIconName] = useState('arrowright'); // Controle do ícone do botão
-  const router = useRouter(); // Hook para navegação com expo-router
+  const [sports, setSports] = useState([]); 
+  const [loading, setLoading] = useState(false); 
+  const [listVisible, setListVisible] = useState(false); 
+  const [iconName, setIconName] = useState('arrowright'); 
+  const router = useRouter(); 
 
-  // Função para buscar ou ocultar as modalidades
+ 
   const toggleSportsList = async () => {
     if (listVisible) {
       setListVisible(false);
-      setIconName('arrowright'); // Voltar o ícone para a seta para a direita
+      setIconName('arrowright'); 
     } else {
-      setLoading(true); // Ativa o indicador de carregamento
+      setLoading(true); 
       try {
-        const response = await fetch('http://localhost:5000/modalidades'); // URL do backend
+        const response = await fetch('http://localhost:5000/modalidades'); 
         const data = await response.json();
-        setSports(data); // Atualiza o estado com as modalidades
-        setListVisible(true); // Mostra a lista ao carregar
-        setIconName('arrowdown'); // Altera o ícone para "arrowdown"
+        setSports(data); 
+        setListVisible(true); 
+        setIconName('arrowdown'); 
       } catch (error) {
         console.error('Erro ao buscar modalidades:', error);
       } finally {
-        setLoading(false); // Desativa o carregamento após a requisição
+        setLoading(false); 
       }
     }
   };
 
-  // Função para navegar para a tela 'pontos' passando o esporte selecionado
+ 
   const handleSelectSport = (sport) => {
-    // Navega para a página 'pontos' passando o esporte selecionado com o parâmetro 'nome'
     router.push(`/pontos?nome=${sport.nome}`);
   };
 
@@ -41,16 +40,15 @@ const Home = () => {
     <View style={styles.container}>
       <Text style={styles.text}>SPORT'S MAP</Text>
 
-      {/* Botão para alternar entre buscar/ocultar esportes */}
+      
       <TouchableOpacity style={styles.button} onPress={toggleSportsList}>
         <AntDesign name={iconName} size={24} color="white" />
         <Text style={styles.buttonText}>Selecione um Esporte</Text>
       </TouchableOpacity>
 
-      {/* Indicador de carregamento */}
+     
       {loading && <ActivityIndicator size="large" color="#0097B2" style={styles.loadingIndicator} />}
 
-      {/* Lista de esportes */}
       {listVisible && sports.length > 0 && (
         <View style={styles.listContainer}>
           <FlatList
@@ -59,7 +57,7 @@ const Home = () => {
             renderItem={({ item }) => (
               <TouchableOpacity
                 style={styles.sportButton}
-                onPress={() => handleSelectSport(item)} // Navega ao clicar no esporte
+                onPress={() => handleSelectSport(item)} 
               >
                 <Text style={styles.sportText}>{item.nome}</Text>
               </TouchableOpacity>

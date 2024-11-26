@@ -2,63 +2,57 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, Modal, TextInput, Button } from 'react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import jwt_decode from 'jwt-decode'; // Certifique-se de importar jwt-decode
+import jwt_decode from 'jwt-decode';
 import Header from '../../components/Header';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function SideBarProfile() {
-  const [showModal, setShowModal] = useState(false); // Controla o estado do modal
-  const [email, setEmail] = useState(''); // Armazena o email do usuário
-  const [username, setUsername] = useState(''); // Armazena o nome do usuário
+  const [showModal, setShowModal] = useState(false);
+  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const router = useRouter();
-  const [userInfo, setUserInfo] = useState();
+  const [userInfo, setUserInfo] = useState({});
 
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
         const token = await AsyncStorage.getItem('accessToken');
-        console.log("Token recuperado:", token);  // Verifique o token
-  
         if (token) {
           const decodedToken = jwt_decode(token);
-          console.log("Decoded token:", decodedToken);  // Verifique os dados do token
-  
-          if (decodedToken && decodedToken.name && decodedToken.email) {
+          if (decodedToken?.name && decodedToken?.email) {
             setUserInfo({
               name: decodedToken.name,
               email: decodedToken.email,
             });
-            console.log("User info set:", decodedToken.name, decodedToken.email);  // Verifique o valor
           } else {
-            console.log("Nome ou email não encontrado no token.");
+            console.warn("Token não contém informações de nome ou email.");
           }
-        } else {
-          console.log("Token não encontrado.");
         }
       } catch (error) {
         console.error('Erro ao carregar o perfil:', error);
       }
     };
-  
+
     fetchUserProfile();
   }, []);
-  
+
   const handleProfile = () => {
     router.push('/inserirLocal');
   };
 
   const handleEditUser = () => {
-    router.push('/putUser'); // Redireciona para a página /putUser
+    setShowModal(true); 
   };
 
   const handleSaveChanges = () => {
     console.log('Alterações salvas');
-    setShowModal(false); // Fecha o modal após salvar
+    setUserInfo({ ...userInfo, name: username, email });
+    setShowModal(false); 
   };
 
   return (
     <View style={styles.container}>
-      <Header texto={'Conta do Sport’s Map'} />
+      <Header texto="Conta do Sport’s Map" />
 
       <View style={styles.perfilContainer}>
         <View style={styles.usuario}>
@@ -66,18 +60,17 @@ export default function SideBarProfile() {
             source={require('../../../assets/iconProfile.png')}
             style={styles.perfilImage}
           />
-           <View style={styles.carlinhos}>
-            <Text style={styles.username}>{userInfo?.name || 'Usuário'}</Text> {/* Exibe o nome */}
-            <Text style={styles.ola}>{userInfo?.email || 'email-user'}</Text> {/* Exibe o email */}
+          <View style={styles.carlinhos}>
+            <Text style={styles.username}>{userInfo.name || 'Usuário'}</Text>
+            <Text style={styles.ola}>{userInfo.email || 'email-user'}</Text>
           </View>
           <TouchableOpacity onPress={handleEditUser}>
             <Ionicons name="pencil" size={20} color="black" style={styles.icon} />
           </TouchableOpacity>
         </View>
       </View>
-      
 
-      <br />
+      <View style={{ height: 20 }} />
 
       <TouchableOpacity style={styles.textContainer} onPress={handleProfile}>
         <Text style={styles.Text}>Inserir Local Esportivo</Text>
@@ -87,7 +80,7 @@ export default function SideBarProfile() {
         <Text style={styles.Text}>Atualizar Pontos Esportivos Existentes</Text>
       </TouchableOpacity>
 
-      <br />
+      <View style={{ height: 20 }} />
 
       <TouchableOpacity style={styles.textContainer} onPress={() => router.push('/termos')}>
         <Text style={styles.Text}>Termos de Uso</Text>
@@ -110,7 +103,7 @@ export default function SideBarProfile() {
       <Modal
         visible={showModal}
         animationType="slide"
-        transparent={true}
+        transparent
         onRequestClose={() => setShowModal(false)}
       >
         <View style={styles.modalOverlay}>

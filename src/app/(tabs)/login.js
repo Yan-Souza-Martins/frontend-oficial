@@ -11,20 +11,17 @@ import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
-
-
 const Login = () => {
-  const [form, setForm] = useState({ username: '', password: '' });
-
+  const [form, setForm] = useState({ email: '', senha: '' });
   const router = useRouter();
+
   const handleInputChange = (field, value) => {
     setForm({ ...form, [field]: value });
   };
 
   const handleLogin = async () => {
     console.log("Dados enviados para o backend:", form);
-  
+
     try {
       const response = await fetch('http://localhost:5000/login', {
         method: 'POST',
@@ -33,28 +30,20 @@ const Login = () => {
         },
         body: JSON.stringify(form),
       });
-  
+
       const data = await response.json();
-      console.log('Resposta do backend:', data);  // Verifique aqui a resposta do backend
-  
+      console.log('Resposta do backend:', data);
+
       if (response.ok && data.accessToken) {
         console.log('Login bem-sucedido:', data);
-        
-        const token = response.data.accessToken;
-        console.log("Token recebido do backend:", token);
-        await AsyncStorage.setItem('accessToken', token);
-        console.log("Token salvo no AsyncStorage:", token);
-        // Salve o token no AsyncStorage
+
+       
         await AsyncStorage.setItem('accessToken', data.accessToken);
-        console.log("Token salvo no AsyncStorage:", data.accessToken); // Verifique se o token foi salvo corretamente
-  
-        // Salve os dados do usuário
         await AsyncStorage.setItem('user', JSON.stringify(data.user));
-  
-        // Alerta de boas-vindas
+
+       
         alert(`Bem-vindo(a), ${data.user.name}!`);
-  
-        // Navegar para a página de perfil
+
         router.push('/profile');
       } else {
         console.error('Erro no login:', data);
@@ -65,22 +54,20 @@ const Login = () => {
       alert('Erro ao tentar se conectar ao servidor');
     }
   };
-  
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* Header */}
+      
       <View style={styles.header}>
         <Text style={styles.headerText}>SPORT'S MAP</Text>
       </View>
 
-      {/* Form */}
+     
       <View style={styles.formContainer}>
         <Feather name="log-in" size={50} color="#0097B2" style={styles.icon} />
         <Text style={styles.title}>Entrar</Text>
         <Text style={styles.subtitle}>
-        Volte a praticar esportes usando <br></br>
-        nosso App!
+          Volte a praticar esportes usando {'\n'} nosso App!
         </Text>
 
         <TextInput
@@ -106,7 +93,7 @@ const Login = () => {
           Não tem uma conta?{' '}
           <Text
             style={styles.link}
-            onPress={() => router.push('/register')} // Navegação com Expo Router
+            onPress={() => router.push('/register')} 
           >
             Criar conta
           </Text>
@@ -114,7 +101,7 @@ const Login = () => {
       </View>
     </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -146,7 +133,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 4,
-    marginTop: '50%', // Para posicionar o formulário logo abaixo do header azul
+    marginTop: '50%', 
     alignSelf: 'center',
   },
   icon: {

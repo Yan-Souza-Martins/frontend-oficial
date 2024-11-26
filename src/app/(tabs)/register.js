@@ -42,7 +42,7 @@ export default function SignUp() {
           email: form.email,
           telefone: form.phone,
           senha: form.senha,
-          confirmarSenha: form.confirmarSenha, // Agora enviando o campo correto
+          confirmarSenha: form.confirmarSenha, 
           isAdmin: false,
           foto_perfil: 'https://res.cloudinary.com/de0ujb8vh/image/upload/v1729706471/usuarios/default_profile_pic.webp',
         }),
@@ -52,7 +52,7 @@ export default function SignUp() {
         const data = await response.json();
         alert('Cadastro realizado com sucesso!');
         setForm({ name: '', email: '', phone: '', senha: '', confirmarSenha: '' });
-        router.push('/login'); // Redireciona para a tela de login
+        router.push('/login'); 
       } else {
         const errorData = await response.json();
         console.error('Erro ao cadastrar:', errorData);
@@ -74,7 +74,7 @@ export default function SignUp() {
       <View style={styles.header}>
         <Text style={styles.headerText}>SPORT'S MAP</Text>
       </View>
-      {/* Form */ }
+      
   <View style={styles.formContainer}>
     <Feather name="user" size={50} color="#0097B2" style={styles.icon} />
     <Text style={styles.title}>Crie Sua Conta</Text>
@@ -124,11 +124,11 @@ export default function SignUp() {
     <Text style={styles.footerText}>
       Já tem uma conta?{' '}
       <Text
-        style={styles.link}
-        onPress={() => router.push('/login')}
-      >
-        Entrar
-      </Text>
+  style={styles.link}
+  onPress={() => router.push('/login')}
+>
+  Entrar
+</Text>
     </Text>
   </View>
     </ScrollView >
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 4,
-    marginTop: '30%', // Para posicionar o formulário logo abaixo do header azul
+    marginTop: '30%', 
     alignSelf: 'center',
   },
   icon: {
