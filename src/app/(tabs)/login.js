@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'; 
 import {
   View,
   Text,
@@ -14,7 +14,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Login = () => {
   const [form, setForm] = useState({ email: '', senha: '' });
-  const [isLoading, setIsLoading] = useState(false); // Para controlar o estado de carregamento
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const handleInputChange = (field, value) => {
@@ -22,43 +22,50 @@ const Login = () => {
   };
 
   const handleLogin = async () => {
+    // Verificação inicial dos campos obrigatórios
     if (!form.email || !form.senha) {
       Alert.alert("Campos obrigatórios", "Por favor, preencha o e-mail e a senha.");
       return;
     }
-
+  
+    // Início do carregamento
     setIsLoading(true);
-    console.log("Dados enviados para o backend:", form);
-
+  
+    // URL do endpoint de login
+    const url = 'http://localhost:5000/login';
+  
     try {
-      const response = await fetch('http://localhost:5000/login', {
+      // Enviando a requisição para o backend
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(form),
+        body: JSON.stringify(form), // Convertendo os dados do formulário para JSON
       });
-
+  
+      // Processando a resposta do servidor
       const data = await response.json();
-      console.log('Resposta do backend:', data);
-
+      console.log("Resposta do servidor:", response.status, data); // Log para depuração
+  
       if (response.ok && data.accessToken) {
-        console.log('Login bem-sucedido:', data);
-
+        // Salvando o token e os dados do usuário localmente
         await AsyncStorage.setItem('accessToken', data.accessToken);
-        await AsyncStorage.setItem('user', JSON.stringify(data.user));
-
-        Alert.alert(`Bem-vindo(a), ${data.user.name}!`);
-
+        await AsyncStorage.setItem('user', JSON.stringify(data.user || {}));
+  
+        // Mensagem de sucesso e navegação
+        Alert.alert(`Bem-vindo(a), ${data?.user?.name || 'Usuário'}!`);
         router.push('/profile');
       } else {
-        console.error('Erro no login:', data);
-        Alert.alert(data.error || 'Erro desconhecido');
+        // Tratamento de erro retornado pelo servidor
+        Alert.alert(data.error || 'Erro ao fazer login.');
       }
     } catch (error) {
-      console.error('Erro de rede:', error);
-      Alert.alert('Erro ao tentar se conectar ao servidor');
+      // Tratamento de erros de conexão ou requisição
+      console.error('Erro de conexão:', error); // Log do erro
+      Alert.alert('Erro ao tentar se conectar ao servidor.');
     } finally {
+      // Finalizando o carregamento
       setIsLoading(false);
     }
   };
@@ -182,7 +189,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   buttonDisabled: {
-    backgroundColor: '#80C7D4', // Cor mais clara para o botão desabilitado
+    backgroundColor: '#80C7D4',
   },
   buttonText: {
     color: '#fff',

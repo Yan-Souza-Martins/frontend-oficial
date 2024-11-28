@@ -1,32 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, Modal, TextInput, Button } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import jwt_decode from 'jwt-decode';
 import Header from '../../components/Header';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function SideBarProfile() {
   const [showDeleteModal, setShowDeleteModal] = useState(false); // Modal de exclusão
-  const [email, setEmail] = useState('');
-  const [username, setUsername] = useState('');
+  const [userInfo, setUserInfo] = useState({ name: 'Usuário', email: 'email-user' });
   const router = useRouter();
-  const [userInfo, setUserInfo] = useState({});
 
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const token = await AsyncStorage.getItem('accessToken');
-        if (token) {
-          const decodedToken = jwt_decode(token);
-          if (decodedToken?.name && decodedToken?.email) {
-            setUserInfo({
-              name: decodedToken.name,
-              email: decodedToken.email,
-            });
-          } else {
-            console.warn("Token não contém informações de nome ou email.");
-          }
+        const name = await AsyncStorage.getItem('userName');
+        const email = await AsyncStorage.getItem('userEmail');
+        if (name || email) {
+          setUserInfo({
+            name: name || 'Usuário',
+            email: email || 'email-user',
+          });
         }
       } catch (error) {
         console.error('Erro ao carregar o perfil:', error);
@@ -36,8 +29,31 @@ export default function SideBarProfile() {
     fetchUserProfile();
   }, []);
 
-  const handleDeleteAccount = () => {
-    console.log('Conta excluída'); // Aqui pode ser feita a lógica para exclusão da conta
+  const handleDeleteAccount = async () => {
+    // Lógica de exclusão de conta
+    try {
+      // Aqui você pode adicionar a chamada ao backend para excluir a conta
+      const response = await fetch('http://localhost:5000/deleteAccount', { 
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: userInfo.email,
+        }),
+      });
+
+      if (response.ok) {
+        alert('Conta excluída com sucesso.');
+        // Redireciona para a tela de login ou página inicial
+        router.push('/login');
+      } else {
+        alert('Erro ao excluir a conta. Tente novamente mais tarde.');
+      }
+    } catch (error) {
+      console.error('Erro ao excluir conta:', error);
+      alert('Erro ao excluir conta. Tente novamente mais tarde.');
+    }
     setShowDeleteModal(false);
   };
 
@@ -52,16 +68,14 @@ export default function SideBarProfile() {
             style={styles.perfilImage}
           />
           <View style={styles.carlinhos}>
-            <Text style={styles.username}>{userInfo.name || 'Usuário'}</Text>
-            <Text style={styles.ola}>{userInfo.email || 'email-user'}</Text>
+            <Text style={styles.username}>{userInfo.name}</Text>
+            <Text style={styles.ola}>{userInfo.email}</Text>
           </View>
           <TouchableOpacity onPress={() => router.push('/putUser')}>
             <Ionicons name="pencil" size={20} color="black" style={styles.icon} />
           </TouchableOpacity>
         </View>
       </View>
-
-      <View style={{ height: 20 }} />
 
       <TouchableOpacity style={styles.textContainer} onPress={() => router.push('/inserirLocal')}>
         <Text style={styles.Text}>Inserir Local Esportivo</Text>
@@ -70,8 +84,6 @@ export default function SideBarProfile() {
       <TouchableOpacity style={styles.textContainer} onPress={() => router.push('/putPontos')}>
         <Text style={styles.Text}>Atualizar Pontos Esportivos Existentes</Text>
       </TouchableOpacity>
-
-      <View style={{ height: 20 }} />
 
       <TouchableOpacity style={styles.textContainer} onPress={() => router.push('/termos')}>
         <Text style={styles.Text}>Termos de Uso</Text>
