@@ -49,7 +49,7 @@ export default function TabNavigator() {
     >
       <Tabs.Screen name="home" options={{ title: '' }} />
       <Tabs.Screen name="profile" options={{ title: '' }} />
-      
+
       {/* Essas telas não terão o botão de aba */}
       <Tabs.Screen name="register" options={{ tabBarButton: () => null }} />
       <Tabs.Screen name="inserirLocal" options={{ tabBarButton: () => null }} />
@@ -57,7 +57,11 @@ export default function TabNavigator() {
       <Tabs.Screen name="pontos" options={{ tabBarButton: () => null }} />
       <Tabs.Screen name="putPontos" options={{ tabBarButton: () => null }} />
       <Tabs.Screen name="putUser" options={{ tabBarButton: () => null }} />
-      
+      <Tabs.Screen name="modalidades" options={{ tabBarButton: () => null }} />
+      <Tabs.Screen name="listModalidades" options={{ tabBarButton: () => null }} />
+      <Tabs.Screen name="inserirModalidade" options={{ tabBarButton: () => null }} />
+      <Tabs.Screen name="putModalidade" options={{ tabBarButton: () => null }} />
+
     </Tabs>
   );
 }

@@ -1,37 +1,36 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, StyleSheet, FlatList } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
-import { useRouter } from 'expo-router'; 
+import { useRouter } from 'expo-router';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 const Home = () => {
-  const [sports, setSports] = useState([]); 
-  const [loading, setLoading] = useState(false); 
-  const [listVisible, setListVisible] = useState(false); 
-  const [iconName, setIconName] = useState('arrowright'); 
-  const router = useRouter(); 
+  const [sports, setSports] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [listVisible, setListVisible] = useState(false);
+  const [iconName, setIconName] = useState('arrowright');
+  const router = useRouter();
 
- 
   const toggleSportsList = async () => {
     if (listVisible) {
       setListVisible(false);
-      setIconName('arrowright'); 
+      setIconName('arrowright');
     } else {
-      setLoading(true); 
+      setLoading(true);
       try {
-        const response = await fetch('http://localhost:5000/modalidades'); 
+        const response = await fetch('http://localhost:5000/modalidades');
         const data = await response.json();
-        setSports(data); 
-        setListVisible(true); 
-        setIconName('arrowdown'); 
+        setSports(data);
+        setListVisible(true);
+        setIconName('arrowdown');
       } catch (error) {
         console.error('Erro ao buscar modalidades:', error);
       } finally {
-        setLoading(false); 
+        setLoading(false);
       }
     }
   };
 
- 
   const handleSelectSport = (sport) => {
     router.push(`/pontos?nome=${sport.nome}`);
   };
@@ -40,13 +39,19 @@ const Home = () => {
     <View style={styles.container}>
       <Text style={styles.text}>SPORT'S MAP</Text>
 
-      
       <TouchableOpacity style={styles.button} onPress={toggleSportsList}>
         <AntDesign name={iconName} size={24} color="white" />
         <Text style={styles.buttonText}>Selecione um Esporte</Text>
       </TouchableOpacity>
 
-     
+      <TouchableOpacity
+        style={[styles.button, { marginTop: 40 }]}
+        onPress={() => router.push('/modalidades')}
+      >
+        <FontAwesome name="gear" size={24} color="white" />
+        <Text style={styles.buttonText}>Gerencie as Modalidades</Text>
+      </TouchableOpacity>
+
       {loading && <ActivityIndicator size="large" color="#0097B2" style={styles.loadingIndicator} />}
 
       {listVisible && sports.length > 0 && (
@@ -57,7 +62,7 @@ const Home = () => {
             renderItem={({ item }) => (
               <TouchableOpacity
                 style={styles.sportButton}
-                onPress={() => handleSelectSport(item)} 
+                onPress={() => handleSelectSport(item)}
               >
                 <Text style={styles.sportText}>{item.nome}</Text>
               </TouchableOpacity>
