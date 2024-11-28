@@ -30,42 +30,40 @@ const Login = () => {
   
     // Início do carregamento
     setIsLoading(true);
-  
-    // URL do endpoint de login
     const url = 'http://localhost:5000/login';
-  
+
     try {
-      // Enviando a requisição para o backend
       const response = await fetch(url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(form), // Convertendo os dados do formulário para JSON
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: form.email,   // O campo email é mantido para a autenticação
+          senha: form.senha,   // A senha também permanece
+        }),
       });
   
       // Processando a resposta do servidor
       const data = await response.json();
       console.log("Resposta do servidor:", response.status, data); // Log para depuração
-  
       if (response.ok && data.accessToken) {
-        // Salvando o token e os dados do usuário localmente
+        // Salva o token e os dados do usuário no AsyncStorage
         await AsyncStorage.setItem('accessToken', data.accessToken);
-        await AsyncStorage.setItem('user', JSON.stringify(data.user || {}));
-  
-        // Mensagem de sucesso e navegação
-        Alert.alert(`Bem-vindo(a), ${data?.user?.name || 'Usuário'}!`);
+        console.log('Token armazenado:', data.accessToken);
+        if (data.user) {
+          await AsyncStorage.setItem('user', JSON.stringify(data.user)); // Salvando dados do usuário
+        }
+
+        console.log('Token armazenado após login:', data.accessToken);
+
+        Alert.alert(`Bem-vindo(a), ${data?.user?.nome || 'Usuário'}!`);  // Usando 'nome' conforme backend
         router.push('/profile');
       } else {
-        // Tratamento de erro retornado pelo servidor
         Alert.alert(data.error || 'Erro ao fazer login.');
       }
     } catch (error) {
-      // Tratamento de erros de conexão ou requisição
-      console.error('Erro de conexão:', error); // Log do erro
+      console.error('Erro de conexão:', error);
       Alert.alert('Erro ao tentar se conectar ao servidor.');
     } finally {
-      // Finalizando o carregamento
       setIsLoading(false);
     }
   };

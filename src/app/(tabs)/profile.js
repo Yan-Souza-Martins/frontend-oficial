@@ -57,6 +57,46 @@ export default function SideBarProfile() {
     setShowDeleteModal(false);
   };
 
+  const handleLogout = async () => {
+    try {
+      // Verifica se o token está no armazenamento local
+      const token = await AsyncStorage.getItem('accessToken');
+      console.log('Token encontrado antes do logout:', token);
+  
+      if (!token) {
+        console.warn('Token não encontrado no armazenamento local.');
+        return;
+      }
+  
+      // Continua com o processo de logout
+      const response = await fetch('http://localhost:5000/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`  // Certifique-se de que o token está sendo enviado corretamente
+        },
+        body: JSON.stringify({ accessToken: token }),
+      });
+  
+      if (response.ok) {
+        console.log('Logout realizado no servidor.');
+  
+        // Remove o token do armazenamento local
+        await AsyncStorage.removeItem('accessToken'); // Use o nome correto do item, que é 'accessToken'
+        console.log('AsyncStorage limpo. Redirecionando para login.');
+  
+        // Redireciona para a página de login
+        router.push('/login');
+      } else {
+        const errorData = await response.json();
+        console.error('Erro no logout do servidor:', errorData.error);
+      }
+    } catch (error) {
+      console.error('Erro ao processar logout:', error);
+    }
+  };
+  
+
   return (
     <View style={styles.container}>
       <Header texto="Conta do Sport’s Map" />
@@ -96,6 +136,13 @@ export default function SideBarProfile() {
       <TouchableOpacity style={styles.textContainer} onPress={() => router.push('/register')}>
         <Text style={styles.Text}>Cadastrar-se</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity
+  style={styles.logoutButton}
+  onPress={handleLogout}
+>
+  <Text style={styles.logoutText}>Sair</Text>
+</TouchableOpacity>
 
       <View style={styles.excluir}>
         <TouchableOpacity
@@ -249,4 +296,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  logoutButton: {
+    marginTop: 20,
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    backgroundColor: 'red',
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  logoutText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  
 });

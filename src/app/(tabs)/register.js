@@ -13,9 +13,9 @@ import { useRouter } from 'expo-router';
 export default function SignUp() {
   const router = useRouter();
   const [form, setForm] = useState({
-    name: '',
+    nome: '',               // Alterado de name para nome
     email: '',
-    phone: '',
+    telefone: '',           // Alterado de phone para telefone
     senha: '',
     confirmarSenha: '',
   });
@@ -25,7 +25,7 @@ export default function SignUp() {
   };
 
   const handleSignUp = async () => {
-    if (!form.name || !form.email || !form.phone || !form.senha || !form.confirmarSenha) {
+    if (!form.nome || !form.email || !form.telefone || !form.senha || !form.confirmarSenha) {
       alert('Todos os campos são obrigatórios.');
       return;
     }
@@ -42,18 +42,17 @@ export default function SignUp() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          nome: form.name,
+          nome: form.nome,             // Alterado de name para nome
           email: form.email,
-          telefone: form.phone,
+          telefone: form.telefone,     // Alterado de phone para telefone
           senha: form.senha,
           confirmarSenha: form.confirmarSenha,
-          // Remover campos extras, como isAdmin e foto_perfil, se não forem necessários
         }),
       });
 
       if (response.ok) {
         alert('Cadastro realizado com sucesso!');
-        setForm({ name: '', email: '', phone: '', senha: '', confirmarSenha: '' });
+        setForm({ nome: '', email: '', telefone: '', senha: '', confirmarSenha: '' });
         router.push('/login');
       } else {
         const errorData = await response.json();
@@ -80,8 +79,8 @@ export default function SignUp() {
         <TextInput
           style={styles.input}
           placeholder="Nome"
-          value={form.name}
-          onChangeText={(value) => handleInputChange('name', value)}
+          value={form.nome}              // Alterado de name para nome
+          onChangeText={(value) => handleInputChange('nome', value)}   // Alterado de name para nome
         />
         <TextInput
           style={styles.input}
@@ -94,8 +93,8 @@ export default function SignUp() {
           style={styles.input}
           placeholder="Telefone"
           keyboardType="phone-pad"
-          value={form.phone}
-          onChangeText={(value) => handleInputChange('phone', value)}
+          value={form.telefone}          // Alterado de phone para telefone
+          onChangeText={(value) => handleInputChange('telefone', value)} // Alterado de phone para telefone
         />
         <TextInput
           style={styles.input}
