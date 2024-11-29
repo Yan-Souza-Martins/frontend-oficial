@@ -13,22 +13,53 @@ export default function SideBarProfile() {
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
+        // Recupera nome e e-mail do AsyncStorage
         const name = await AsyncStorage.getItem('userName');
         const email = await AsyncStorage.getItem('userEmail');
+        
+        // Atualiza o estado com os dados do AsyncStorage
         if (name || email) {
           setUserInfo({
             name: name || 'Usuário',
             email: email || 'email-user',
           });
         }
+  
+        // Recupera o token do AsyncStorage
+        const token = await AsyncStorage.getItem('accessToken');
+        if (!token) {
+          console.warn('Token não encontrado.');
+          return;
+        }
+  
+        // Faz a chamada ao backend para buscar dados atualizados
+        const response = await fetch('http://localhost:5000/getUserInfo', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+  
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Dados do usuário do backend:', data);
+  
+          // Atualiza o estado com os dados recebidos do backend
+          setUserInfo({
+            name: data.name || name || 'Usuário',
+            email: data.email || email || 'email-user',
+          });
+        } else {
+          console.error('Erro ao buscar dados do backend:', response.statusText);
+        }
       } catch (error) {
         console.error('Erro ao carregar o perfil:', error);
       }
     };
-
+  
     fetchUserProfile();
   }, []);
-
+  
   const handleDeleteAccount = async () => {
     // Lógica de exclusão de conta
     try {
