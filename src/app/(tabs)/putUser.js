@@ -12,7 +12,7 @@ export default function PutUser() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [userId, setUserId] = useState(null);
 
-  // Função para carregar o userId (public_id) do token JWT
+  // Carregar o ID do usuário (public_id) do token JWT
   useEffect(() => {
     const loadUserIdFromToken = async () => {
       try {
@@ -22,20 +22,15 @@ export default function PutUser() {
           return;
         }
 
-        console.log("Token recuperado:", token); // Log para verificar o token
-
-        // Use jwt_decode (certifique-se de que está instalado corretamente)
         const decodedToken = jwt_decode(token);
-        console.log("Token decodificado:", decodedToken); // Log para verificar o token decodificado
 
         if (decodedToken && decodedToken.public_id) {
           setUserId(decodedToken.public_id);
-          console.log("Public ID carregado:", decodedToken.public_id);
         } else {
           Alert.alert("Erro", "Erro ao carregar informações do usuário.");
         }
       } catch (error) {
-        console.error("Erro ao carregar o public_id do token:", error.message); // Log detalhado do erro
+        console.error("Erro ao carregar o public_id do token:", error.message);
         Alert.alert("Erro", "Erro ao processar o token de autenticação.");
       }
     };
@@ -43,43 +38,50 @@ export default function PutUser() {
     loadUserIdFromToken();
   }, []);
 
-  // Função para salvar as alterações no backend
+  // Salvar alterações no backend
   const handleSaveChanges = async () => {
     if (!userId) {
       Alert.alert("Erro", "Usuário não identificado. Faça login novamente.");
       return;
     }
 
+    if (password && password !== confirmPassword) {
+      Alert.alert("Erro", "As senhas não correspondem.");
+      return;
+    }
+
     try {
       const token = await AsyncStorage.getItem("accessToken");
-      const response = await fetch(`http://localhos`, {
+      const response = await fetch(`http://localhost:5000/users/${userId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          name,
+          nome: name,
           email,
-          phone,
-          password,
-          confirmPassword,
+          telefone: phone,
+          senha: password,
+          confirmarSenha: confirmPassword, // Enviando confirmarSenha para o backend
         }),
       });
 
       const data = await response.json();
       if (response.ok) {
         Alert.alert("Sucesso", "Alterações salvas com sucesso!");
-        console.log("Dados atualizados:", data);
       } else {
-        Alert.alert("Erro", `Erro ao atualizar: ${data.error}`);
-        console.error("Erro no servidor:", data);
+        const errorMessage =
+          data.error || "Erro desconhecido. Por favor, tente novamente.";
+        Alert.alert("Erro", errorMessage);
       }
     } catch (error) {
       console.error("Erro ao salvar alterações:", error);
       Alert.alert("Erro", "Erro inesperado. Tente novamente.");
     }
   };
+
+
 
   return (
     <View style={styles.container}>
@@ -128,7 +130,6 @@ export default function PutUser() {
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

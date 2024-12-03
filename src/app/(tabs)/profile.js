@@ -13,38 +13,31 @@ export default function SideBarProfile() {
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        // Recupera nome e e-mail do AsyncStorage
         const name = await AsyncStorage.getItem('userName');
         const email = await AsyncStorage.getItem('userEmail');
-        
-        // Atualiza o estado com os dados do AsyncStorage
+
         if (name || email) {
           setUserInfo({
             name: name || 'Usuário',
             email: email || 'email-user',
           });
         }
-  
-        // Recupera o token do AsyncStorage
+
         const token = await AsyncStorage.getItem('accessToken');
         if (!token) {
           console.warn('Token não encontrado.');
           return;
         }
-  
-        // Faz a chamada ao backend para buscar dados atualizados
+
         const response = await fetch('http://localhost:5000/getUserInfo', {
           method: 'GET',
           headers: {
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
-  
+
         if (response.ok) {
           const data = await response.json();
-          console.log('Dados do usuário do backend:', data);
-  
-          // Atualiza o estado com os dados recebidos do backend
           setUserInfo({
             name: data.name || name || 'Usuário',
             email: data.email || email || 'email-user',
@@ -56,74 +49,60 @@ export default function SideBarProfile() {
         console.error('Erro ao carregar o perfil:', error);
       }
     };
-  
+
     fetchUserProfile();
   }, []);
-  
+
   const handleDeleteAccount = async () => {
     try {
-      // Recupera o token armazenado
-      const token = await AsyncStorage.getItem("accessToken");
-  
+      const token = await AsyncStorage.getItem('accessToken');
       if (!token) {
-        alert("Erro: Token não encontrado. Faça login novamente.");
+        alert('Erro: Token não encontrado. Faça login novamente.');
         return;
       }
-  
-      // Faz a requisição ao backend para excluir a conta
-      const response = await fetch("http://localhost:5000/deleteAccount", {
-        method: "DELETE",
+
+      const response = await fetch('http://localhost:5000/deleteAccount', {
+        method: 'DELETE',
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // Envia o token no cabeçalho
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
       });
-  
+
       if (response.ok) {
-        alert("Conta excluída com sucesso.");
-        // Remove o token e redireciona para o login
-        await AsyncStorage.removeItem("accessToken");
-        router.push("/login");
+        alert('Conta excluída com sucesso.');
+        await AsyncStorage.removeItem('accessToken');
+        router.push('/login');
       } else {
         const errorData = await response.json();
         alert(`Erro ao excluir conta: ${errorData.error}`);
       }
     } catch (error) {
-      console.error("Erro ao excluir conta:", error);
-      alert("Erro inesperado ao excluir conta. Tente novamente mais tarde.");
+      console.error('Erro ao excluir conta:', error);
+      alert('Erro inesperado ao excluir conta. Tente novamente mais tarde.');
     }
     setShowDeleteModal(false);
   };
 
   const handleLogout = async () => {
     try {
-      // Verifica se o token está no armazenamento local
       const token = await AsyncStorage.getItem('accessToken');
-      console.log('Token encontrado antes do logout:', token);
-  
       if (!token) {
         console.warn('Token não encontrado no armazenamento local.');
         return;
       }
-  
-      // Continua com o processo de logout
+
       const response = await fetch('http://localhost:5000/logout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`  // Certifique-se de que o token está sendo enviado corretamente
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ accessToken: token }),
       });
-  
+
       if (response.ok) {
-        console.log('Logout realizado no servidor.');
-  
-        // Remove o token do armazenamento local
-        await AsyncStorage.removeItem('accessToken'); // Use o nome correto do item, que é 'accessToken'
-        console.log('AsyncStorage limpo. Redirecionando para login.');
-  
-        // Redireciona para a página de login
+        await AsyncStorage.removeItem('accessToken');
         router.push('/login');
       } else {
         const errorData = await response.json();
@@ -133,7 +112,6 @@ export default function SideBarProfile() {
       console.error('Erro ao processar logout:', error);
     }
   };
-  
 
   return (
     <View style={styles.container}>
@@ -149,11 +127,12 @@ export default function SideBarProfile() {
             <Text style={styles.username}>{userInfo.name}</Text>
             <Text style={styles.ola}>{userInfo.email}</Text>
           </View>
-          <TouchableOpacity onPress={() => router.push('/putUser')}>
-            <Ionicons name="pencil" size={20} color="black" style={styles.icon} />
-          </TouchableOpacity>
         </View>
       </View>
+
+      <TouchableOpacity onPress={() => router.push('/putUser')} style={styles.icon}>
+        <Ionicons name="pencil" size={20} color="black" />
+      </TouchableOpacity>
 
       <TouchableOpacity style={styles.textContainer} onPress={() => router.push('/inserirLocal')}>
         <Text style={styles.Text}>Inserir Local Esportivo</Text>
@@ -174,13 +153,10 @@ export default function SideBarProfile() {
       <TouchableOpacity style={styles.textContainer} onPress={() => router.push('/register')}>
         <Text style={styles.Text}>Cadastrar-se</Text>
       </TouchableOpacity>
-  
 
-      <TouchableOpacity
-  style={styles.logoutButton}
-  onPress={handleLogout} >
-  <Text style={styles.logoutText}>Sair</Text>
-</TouchableOpacity>
+      <TouchableOpacity style={styles.textContainer} onPress={handleLogout}>
+        <Text style={styles.Text}>Sair</Text>
+      </TouchableOpacity>
 
       <View style={styles.excluir}>
         <TouchableOpacity
@@ -191,7 +167,6 @@ export default function SideBarProfile() {
         </TouchableOpacity>
       </View>
 
-      {/* Modal de Exclusão */}
       <Modal
         visible={showDeleteModal}
         animationType="fade"
@@ -230,9 +205,10 @@ const styles = StyleSheet.create({
   },
   perfilContainer: {
     alignItems: 'flex-start',
-    marginTop: 40,
     marginBottom: 20,
     backgroundColor: 'white',
+    paddingTop: 15,
+    paddingBottom: 15,
   },
   perfilImage: {
     width: 80,
@@ -244,7 +220,6 @@ const styles = StyleSheet.create({
   ola: {
     fontSize: 18,
     marginTop: 10,
-    marginRight: 160,
   },
   username: {
     fontSize: 18,
@@ -271,7 +246,7 @@ const styles = StyleSheet.create({
   usuario: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     gap: 5,
   },
   excluir: {
@@ -327,25 +302,16 @@ const styles = StyleSheet.create({
     backgroundColor: 'red',
   },
   modalButtonCancel: {
-    backgroundColor: '#dcdcdc',
+    backgroundColor: 'gray',
   },
   modalButtonText: {
     color: 'white',
-    fontSize: 16,
     fontWeight: 'bold',
   },
-  logoutButton: {
-    marginTop: 20,
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    backgroundColor: 'red',
-    borderRadius: 5,
-    alignItems: 'center',
+  icon: {
+    position: 'absolute',
+    top: 125,
+    right: 20,
+    zIndex: 10,
   },
-  logoutText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  
 });
