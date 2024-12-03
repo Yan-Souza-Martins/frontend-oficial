@@ -61,29 +61,36 @@ export default function SideBarProfile() {
   }, []);
   
   const handleDeleteAccount = async () => {
-    // Lógica de exclusão de conta
     try {
-      // Aqui você pode adicionar a chamada ao backend para excluir a conta
-      const response = await fetch('http://localhost:5000/deleteAccount', { 
-        method: 'DELETE',
+      // Recupera o token armazenado
+      const token = await AsyncStorage.getItem("accessToken");
+  
+      if (!token) {
+        alert("Erro: Token não encontrado. Faça login novamente.");
+        return;
+      }
+  
+      // Faz a requisição ao backend para excluir a conta
+      const response = await fetch("http://localhost:5000/deleteAccount", {
+        method: "DELETE",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Envia o token no cabeçalho
         },
-        body: JSON.stringify({
-          email: userInfo.email,
-        }),
       });
-
+  
       if (response.ok) {
-        alert('Conta excluída com sucesso.');
-        // Redireciona para a tela de login ou página inicial
-        router.push('/login');
+        alert("Conta excluída com sucesso.");
+        // Remove o token e redireciona para o login
+        await AsyncStorage.removeItem("accessToken");
+        router.push("/login");
       } else {
-        alert('Erro ao excluir a conta. Tente novamente mais tarde.');
+        const errorData = await response.json();
+        alert(`Erro ao excluir conta: ${errorData.error}`);
       }
     } catch (error) {
-      console.error('Erro ao excluir conta:', error);
-      alert('Erro ao excluir conta. Tente novamente mais tarde.');
+      console.error("Erro ao excluir conta:", error);
+      alert("Erro inesperado ao excluir conta. Tente novamente mais tarde.");
     }
     setShowDeleteModal(false);
   };
@@ -167,11 +174,11 @@ export default function SideBarProfile() {
       <TouchableOpacity style={styles.textContainer} onPress={() => router.push('/register')}>
         <Text style={styles.Text}>Cadastrar-se</Text>
       </TouchableOpacity>
+  
 
       <TouchableOpacity
   style={styles.logoutButton}
-  onPress={handleLogout}
->
+  onPress={handleLogout} >
   <Text style={styles.logoutText}>Sair</Text>
 </TouchableOpacity>
 

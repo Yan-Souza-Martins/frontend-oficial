@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import Header from '../../components/Header';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function InserirModalidade() {
   const [nome, setNome] = useState('');
@@ -22,17 +23,29 @@ export default function InserirModalidade() {
     }
 
     try {
+      // Recupera o token para autenticação
+      const token = await AsyncStorage.getItem('accessToken');
+      if (!token) {
+        Alert.alert('Erro', 'Você precisa estar logado como administrador.');
+        return;
+      }
+
       const response = await fetch('http://localhost:5000/modalidades', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome, icone: urlImagem }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`, // Adiciona o token para autenticação
+        },
+        body: JSON.stringify({ nome, urlImage: urlImagem }), // Corrige o campo para "urlImage"
       });
+
+      const data = await response.json();
 
       if (response.ok) {
         Alert.alert('Sucesso', 'Modalidade inserida com sucesso!');
         router.push('/modalidades/lista'); // Redireciona para a lista de modalidades
       } else {
-        throw new Error('Erro ao inserir modalidade.');
+        Alert.alert('Erro', data.error || 'Erro ao inserir modalidade.');
       }
     } catch (error) {
       Alert.alert('Erro', 'Não foi possível inserir a modalidade.');
