@@ -27,11 +27,13 @@ export default function SignUp() {
   };
 
   const handleSignUp = async () => {
+    // Validações de campos
     if (!form.nome || !form.email || !form.telefone || !form.senha || !form.confirmarSenha) {
       alert("Todos os campos são obrigatórios.");
       return;
     }
 
+    // Validação de senhas
     if (form.senha !== form.confirmarSenha) {
       alert("As senhas não coincidem.");
       return;
@@ -39,6 +41,20 @@ export default function SignUp() {
 
     if (form.senha.length < 6) {
       alert("A senha deve ter no mínimo 6 caracteres.");
+      return;
+    }
+
+    // Validação do telefone (11 caracteres, apenas números)
+    const telefoneRegex = /^[0-9]{11}$/;
+    if (!telefoneRegex.test(form.telefone)) {
+      alert("O telefone deve ter 11 dígitos.");
+      return;
+    }
+
+    // Validação do email
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    if (!emailRegex.test(form.email)) {
+      alert("Email inválido.");
       return;
     }
 
@@ -107,6 +123,7 @@ export default function SignUp() {
           placeholder="Telefone"
           keyboardType="phone-pad"
           value={form.telefone}
+          maxLength={11} // Limita a 11 caracteres
           onChangeText={(value) => handleInputChange("telefone", value)}
         />
         <TextInput

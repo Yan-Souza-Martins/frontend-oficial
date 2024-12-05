@@ -20,7 +20,12 @@ const Home = () => {
       try {
         const response = await fetch('http://localhost:5000/modalidades');
         const data = await response.json();
-        setSports(data);
+        
+        if (data.success) {
+          setSports(data.modalidades); // Agora acessando a chave correta "modalidades"
+        } else {
+          console.error('Erro ao carregar modalidades:', data.error);
+        }
         setListVisible(true);
         setIconName('arrowdown');
       } catch (error) {
