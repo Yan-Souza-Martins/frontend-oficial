@@ -5,11 +5,13 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
-const BASE_URL = "http://localhost:5000"; // Ajuste para o IP do backend se necessário
+const BASE_URL = "http://localhost:5000"; // Altere para o IP correto do backend se necessário
 
 export default function SignUp() {
   const router = useRouter();
@@ -20,52 +22,29 @@ export default function SignUp() {
     senha: "",
     confirmarSenha: "",
   });
-  const [isLoading, setIsLoading] = useState(false); // Estado de carregamento
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleInputChange = (field, value) => {
     setForm({ ...form, [field]: value });
   };
 
   const handleSignUp = async () => {
-    // Validações de campos
     if (!form.nome || !form.email || !form.telefone || !form.senha || !form.confirmarSenha) {
-      alert("Todos os campos são obrigatórios.");
+      Alert.alert("Erro", "Todos os campos são obrigatórios.");
       return;
     }
 
-    // Validação de senhas
     if (form.senha !== form.confirmarSenha) {
-      alert("As senhas não coincidem.");
+      Alert.alert("Erro", "As senhas não coincidem.");
       return;
     }
 
-    if (form.senha.length < 6) {
-      alert("A senha deve ter no mínimo 6 caracteres.");
-      return;
-    }
-
-    // Validação do telefone (11 caracteres, apenas números)
-    const telefoneRegex = /^[0-9]{11}$/;
-    if (!telefoneRegex.test(form.telefone)) {
-      alert("O telefone deve ter 11 dígitos.");
-      return;
-    }
-
-    // Validação do email
-    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-    if (!emailRegex.test(form.email)) {
-      alert("Email inválido.");
-      return;
-    }
-
-    setIsLoading(true); // Início do carregamento
+    setIsLoading(true);
 
     try {
       const response = await fetch(`${BASE_URL}/signup`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           nome: form.nome,
           email: form.email,
@@ -78,17 +57,17 @@ export default function SignUp() {
       const data = await response.json();
 
       if (response.ok) {
-        alert("Cadastro realizado com sucesso!");
+        Alert.alert("Sucesso", "Cadastro realizado com sucesso!");
         setForm({ nome: "", email: "", telefone: "", senha: "", confirmarSenha: "" });
-        router.push("/login"); // Redireciona para o login
+        router.push("/login");
       } else {
-        alert(`Erro ao cadastrar: ${data.error || "Erro desconhecido."}`);
+        Alert.alert("Erro", data.error || "Erro ao cadastrar. Tente novamente.");
       }
     } catch (error) {
       console.error("Erro ao registrar:", error);
-      alert("Erro ao se conectar ao servidor. Tente novamente mais tarde.");
+      Alert.alert("Erro", "Erro ao se conectar ao servidor.");
     } finally {
-      setIsLoading(false); // Fim do carregamento
+      setIsLoading(false);
     }
   };
 
@@ -101,10 +80,6 @@ export default function SignUp() {
       <View style={styles.formContainer}>
         <Feather name="user" size={50} color="#0097B2" style={styles.icon} />
         <Text style={styles.title}>Crie Sua Conta</Text>
-        <Text style={styles.subtitle}>
-          Crie sua conta para adicionar pontos esportivos ao nosso App!
-        </Text>
-
         <TextInput
           style={styles.input}
           placeholder="Nome"
@@ -123,7 +98,7 @@ export default function SignUp() {
           placeholder="Telefone"
           keyboardType="phone-pad"
           value={form.telefone}
-          maxLength={11} // Limita a 11 caracteres
+          maxLength={11}
           onChangeText={(value) => handleInputChange("telefone", value)}
         />
         <TextInput
@@ -140,17 +115,13 @@ export default function SignUp() {
           value={form.confirmarSenha}
           onChangeText={(value) => handleInputChange("confirmarSenha", value)}
         />
-
         <TouchableOpacity
           style={[styles.button, isLoading ? { backgroundColor: "#ccc" } : {}]}
           onPress={handleSignUp}
           disabled={isLoading}
         >
-          <Text style={styles.buttonText}>
-            {isLoading ? "Processando..." : "Criar Conta"}
-          </Text>
+          {isLoading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Criar Conta</Text>}
         </TouchableOpacity>
-
         <Text style={styles.footerText}>
           Já tem uma conta?{" "}
           <Text style={styles.link} onPress={() => router.push("/login")}>
@@ -183,7 +154,6 @@ const styles = {
   },
   icon: { marginBottom: 10 },
   title: { fontSize: 20, fontWeight: "bold", color: "#333", marginBottom: 8 },
-  subtitle: { fontSize: 14, color: "#555", textAlign: "center", marginBottom: 20 },
   input: {
     width: "100%",
     height: 50,
