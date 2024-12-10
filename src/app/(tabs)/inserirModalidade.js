@@ -9,7 +9,6 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import Header from '../../components/Header';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function InserirModalidade() {
   const [nome, setNome] = useState('');
@@ -23,20 +22,12 @@ export default function InserirModalidade() {
     }
 
     try {
-      // Recupera o token para autenticação
-      const token = await AsyncStorage.getItem('accessToken');
-      if (!token) {
-        Alert.alert('Erro', 'Você precisa estar logado como administrador.');
-        return;
-      }
-
       const response = await fetch('http://localhost:5000/modalidades', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`, // Adiciona o token para autenticação
         },
-        body: JSON.stringify({ nome, urlImage: urlImagem }), // Corrige o campo para "urlImage"
+        body: JSON.stringify({ nome, urlImage: urlImagem }), // Corrige o nome do campo
       });
 
       const data = await response.json();

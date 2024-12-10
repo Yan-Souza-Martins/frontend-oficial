@@ -1,100 +1,133 @@
+
+
 import React, { useState, useEffect } from 'react';
 import {
-    View,
-    Text,
-    TouchableOpacity,
-    StyleSheet,
-    FlatList,
-    Image,
-    ActivityIndicator,
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  FlatList,
+  Image,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Para gerenciar o token
 import { useRouter } from 'expo-router';
 import Header from '../../components/Header';
 import { FontAwesome } from '@expo/vector-icons';
 
 export default function ListModalidades() {
-    const [modalidades, setModalidades] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const router = useRouter();
+  const [modalidades, setModalidades] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-    // Fetch inicial para carregar as modalidades
-    useEffect(() => {
-        const fetchModalidades = async () => {
-            setLoading(true);
-            try {
-                const response = await fetch('http://localhost:5000/modalidades');
-                const data = await response.json();
-                setModalidades(data);
-            } catch (error) {
-                console.error('Erro ao buscar modalidades:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
+  // Fetch inicial para carregar as modalidades
+  useEffect(() => {
+    const fetchModalidades = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch('http://localhost:5000/modalidades'); // Troque pelo IP real
+        const data = await response.json();
 
-        fetchModalidades();
-    }, []);
-
-    // Função para redirecionar para a página de adição
-    const handleAddModalidade = () => {
-        router.push('/inserirModalidade');
-    };
-
-    // Função para redirecionar para a página de edição
-    const handleEditModalidade = (id) => {
-        router.push(`/putModalidade?id=${id}`); // Passa o ID como parâmetro
-    };
-
-    // Função para deletar modalidade
-    const handleDeleteModalidade = async (id) => {
-        try {
-            await fetch(`http://localhost:5000/modalidades/${id}`, { method: 'DELETE' });
-            setModalidades((prev) => prev.filter((modalidade) => modalidade.id !== id));
-        } catch (error) {
-            console.error('Erro ao deletar modalidade:', error);
+        if (response.ok) {
+          setModalidades(data);
+        } else {
+          Alert.alert('Erro', data.error || 'Não foi possível carregar as modalidades.');
         }
+      } catch (error) {
+        console.error('Erro ao buscar modalidades:', error);
+        Alert.alert('Erro', 'Erro ao conectar com o servidor.');
+      } finally {
+        setLoading(false);
+      }
     };
 
-    // Renderização de cada card de modalidade
-    const renderModalidadeCard = ({ item }) => (
-        <View style={styles.card}>
-            <Image source={{ uri: item.icone }} style={styles.icon} />
-            <Text style={styles.modalidadeText}>{item.nome}</Text>
-            <View style={styles.actionsContainer}>
-                {/* Botão de editar */}
-                <TouchableOpacity onPress={() => handleEditModalidade(item.id)}>
-                    <Image source={require('../../../assets/pen.png')} style={styles.actionIcon} />
-                </TouchableOpacity>
-                {/* Botão de deletar */}
-                <TouchableOpacity onPress={() => handleDeleteModalidade(item.id)}>
-                    <FontAwesome name="trash" size={24} color="red" style={styles.actionIcon} />
-                </TouchableOpacity>
-            </View>
-        </View>
-    );
+    fetchModalidades();
+  }, []);
 
-    return (
-        <View style={styles.container}>
-            <Header texto="Lista de Modalidades" />
+  // Função para redirecionar para a página de adição
+  const handleAddModalidade = () => {
+    router.push('/inserirModalidade');
+  };
 
-            {loading ? (
-                <ActivityIndicator size="large" color="#0078AA" style={styles.loadingIndicator} />
-            ) : (
-                <FlatList
-                    data={modalidades}
-                    keyExtractor={(item) => item.id.toString()}
-                    renderItem={renderModalidadeCard}
-                    contentContainerStyle={styles.listContainer}
-                />
-            )}
+  // Função para redirecionar para a página de edição
+  const handleEditModalidade = (id) => {
+    router.push(`/putModalidade?id=${id}`);
+  };
 
-            <TouchableOpacity style={styles.addButton} onPress={handleAddModalidade}>
-                <Text style={styles.addButtonText}>Inserir nova Modalidade</Text>
-            </TouchableOpacity>
-        </View>
-    );
+  // Função para recuperar o token armazenado
+  const getToken = async () => {
+    try {
+      return await AsyncStorage.getItem('authToken');
+    } catch (error) {
+      console.error('Erro ao recuperar o token:', error);
+      return null;
+    }
+  };
+
+  // Função para deletar modalidade
+  const handleDeleteModalidade = async (id) => {
+    console.log("Tentando deletar modalidade com ID:", id);
+    try {
+      const response = await fetch(`http://localhost:5000/modalidades/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (response.ok) {
+        setModalidades((prev) => prev.filter((modalidade) => modalidade.id !== id));
+        Alert.alert('Sucesso', 'Modalidade deletada com sucesso!');
+      } else {
+        const data = await response.json();
+        Alert.alert('Erro', data.error || 'Não foi possível deletar a modalidade.');
+      }
+    } catch (error) {
+      console.error('Erro ao deletar modalidade:', error);
+      Alert.alert('Erro', 'Erro ao conectar com o servidor.');
+    }
+  };
+  
+  // Renderização de cada card de modalidade
+  const renderModalidadeCard = ({ item }) => (
+    <View style={styles.card}>
+      <Image source={{ uri: item.urlImage }} style={styles.icon} />
+      <Text style={styles.modalidadeText}>{item.nome}</Text>
+      <View style={styles.actionsContainer}>
+        {/* Botão de editar */}
+        <TouchableOpacity onPress={() => handleEditModalidade(item.id)}>
+          <Image source={require('../../../assets/pen.png')} style={styles.actionIcon} />
+        </TouchableOpacity>
+        {/* Botão de deletar */}
+        <TouchableOpacity onPress={() => handleDeleteModalidade(item.id)}>
+          <FontAwesome name="trash" size={24} color="red" style={styles.actionIcon} />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  return (
+    <View style={styles.container}>
+      <Header texto="Lista de Modalidades" />
+
+      {loading ? (
+        <ActivityIndicator size="large" color="#0078AA" style={styles.loadingIndicator} />
+      ) : (
+        <FlatList
+          data={modalidades}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderModalidadeCard}
+          contentContainerStyle={styles.listContainer}
+        />
+      )}
+
+      <TouchableOpacity style={styles.addButton} onPress={handleAddModalidade}>
+        <Text style={styles.addButtonText}>Inserir nova Modalidade</Text>
+      </TouchableOpacity>
+    </View>
+  );
 }
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,

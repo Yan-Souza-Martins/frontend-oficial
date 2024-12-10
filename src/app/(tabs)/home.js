@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator, StyleSheet, FlatList } from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
+import { View, Text, TouchableOpacity, ActivityIndicator, FlatList, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { AntDesign, FontAwesome } from '@expo/vector-icons';
 
 const Home = () => {
   const [sports, setSports] = useState([]);
@@ -21,10 +20,14 @@ const Home = () => {
         const response = await fetch('http://localhost:5000/modalidades');
         const data = await response.json();
         
-        if (data.success) {
-          setSports(data.modalidades); // Agora acessando a chave correta "modalidades"
+        // Verificando a estrutura correta da resposta
+        console.log('Resposta da API:', data);
+
+        // Ajuste para tratar o retorno direto com o array de modalidades
+        if (Array.isArray(data) && data.length > 0) {
+          setSports(data); // Agora você pode diretamente usar 'data'
         } else {
-          console.error('Erro ao carregar modalidades:', data.error);
+          console.error('Erro ao carregar modalidades:', 'Formato de resposta inesperado');
         }
         setListVisible(true);
         setIconName('arrowdown');
@@ -37,6 +40,7 @@ const Home = () => {
   };
 
   const handleSelectSport = (sport) => {
+    // Redireciona para a tela de pontos, passando o nome da modalidade
     router.push(`/pontos?nome=${sport.nome}`);
   };
 
@@ -63,7 +67,7 @@ const Home = () => {
         <View style={styles.listContainer}>
           <FlatList
             data={sports}
-            keyExtractor={(item, index) => index.toString()}
+            keyExtractor={(item) => item.id.toString()}  // Usando 'id' como chave
             renderItem={({ item }) => (
               <TouchableOpacity
                 style={styles.sportButton}
@@ -82,64 +86,45 @@ const Home = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    backgroundColor: '#f5f5f5',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    justifyContent: 'center',
   },
   text: {
-    fontSize: 48,
+    fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 500,
-    fontFamily: 'Aboreto-Regular',
-    position: 'absolute',
+    color: '#333',
+    marginBottom: 20,
   },
   button: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
     backgroundColor: '#0097B2',
-    borderRadius: 30,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 5,
-    width: 354,
+    padding: 15,
+    borderRadius: 5,
+    marginBottom: 20,
   },
   buttonText: {
     color: 'white',
     fontSize: 16,
-    marginLeft: 8,
+    marginLeft: 10,
+  },
+  listContainer: {
+    marginTop: 20,
+    width: '80%',
+  },
+  sportButton: {
+    padding: 15,
+    backgroundColor: '#0078AA',
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  sportText: {
+    color: 'white',
+    fontSize: 18,
   },
   loadingIndicator: {
     marginTop: 20,
-  },
-  listContainer: {
-    backgroundColor: '#0097B2',
-    borderRadius: 10,
-    marginTop: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 10,
-    width: '85%',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  sportButton: {
-    padding: 10,
-    backgroundColor: '#0097B2',
-    borderRadius: 5,
-    marginVertical: 5,
-    alignItems: 'center',
-  },
-  sportText: {
-    fontSize: 16,
-    color: '#ffffff',
-    textAlign: 'left',
   },
 });
 

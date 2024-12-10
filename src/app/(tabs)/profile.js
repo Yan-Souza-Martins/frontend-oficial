@@ -26,27 +26,27 @@ const Profile = () => {
     const fetchUserData = async () => {
       setLoading(true);
       try {
-        const userId = await AsyncStorage.getItem("userId");
+        const userId = await AsyncStorage.getItem("userId"); // Pega o ID do usuário do AsyncStorage
         const token = await AsyncStorage.getItem("accessToken");
-
+  
         if (!userId || !token) {
           Alert.alert("Sessão Expirada", "Por favor, faça login novamente.");
           router.push("/login");
           return;
         }
-
-        const response = await fetch(`${BASE_URL}/Info/${userId}`, {
+  
+        const response = await fetch(`${BASE_URL}/info/${userId}`, { // Passando o userId pela URL
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${token}`, // Enviando o token no cabeçalho
           },
         });
-
+  
         const data = await response.json();
-
+  
         if (response.ok) {
-          setUserData(data);
+          setUserData(data); // Atualiza os dados do usuário no estado
         } else {
           Alert.alert("Erro", data.error || "Erro ao carregar as informações do usuário.");
           router.push("/login");
@@ -58,7 +58,7 @@ const Profile = () => {
         setLoading(false);
       }
     };
-
+  
     fetchUserData();
   }, []);
 

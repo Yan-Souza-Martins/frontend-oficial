@@ -46,13 +46,16 @@ const Login = () => {
       if (response.ok && result.success) {
         console.log("Resposta bem-sucedida do backend. Verificando dados...");
   
-        const token = result.token;
+        const token = result.accessToken;
         const user = result.user;
   
         if (token && user) {
           // Salva o token e userId no AsyncStorage
           await AsyncStorage.setItem("accessToken", token);
           await AsyncStorage.setItem("userId", String(user.id));
+
+          const savedToken = await AsyncStorage.getItem("accessToken");
+          console.log("Token salvo:", savedToken);
   
           console.log("UserID salvo:", user.id);
   
