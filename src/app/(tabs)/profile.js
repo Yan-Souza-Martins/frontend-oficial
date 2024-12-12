@@ -10,7 +10,7 @@ import {
   Button,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { MaterialIcons } from "@expo/vector-icons";
+import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
 const BASE_URL = "http://localhost:5000"; // Altere para o IP do backend, se necessário
@@ -147,9 +147,13 @@ const Profile = () => {
       </View>
 
       <View style={styles.optionsContainer}>
-        <TouchableOpacity style={styles.option}>
-          <Text style={styles.optionText}>Inserir Local Esportivo</Text>
-        </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.button, { marginTop: 40 }]}
+        onPress={() => router.push('/inserirLocal')}
+      >
+        <FontAwesome name="gear" size={24} color="white" />
+        <Text style={styles.buttonText}>Gerencie as Modalidades</Text>
+      </TouchableOpacity>
         <TouchableOpacity style={styles.option}>
           <Text style={styles.optionText}>Atualizar Pontos Esportivos Existentes</Text>
         </TouchableOpacity>
