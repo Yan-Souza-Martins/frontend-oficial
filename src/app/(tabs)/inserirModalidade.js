@@ -9,11 +9,13 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import Header from '../../components/Header';
+import { useNavigation } from "@react-navigation/native";
 
 export default function InserirModalidade() {
   const [nome, setNome] = useState('');
   const [urlImagem, setUrlImagem] = useState('');
   const router = useRouter();
+  const navigation = useNavigation();
 
   const handleInsertModalidade = async () => {
     if (!nome || !urlImagem) {
@@ -34,7 +36,7 @@ export default function InserirModalidade() {
 
       if (response.ok) {
         Alert.alert('Sucesso', 'Modalidade inserida com sucesso!');
-        router.push('/modalidades/lista'); // Redireciona para a lista de modalidades
+        router.push('/pontos'); // Redireciona para a lista de modalidades
       } else {
         Alert.alert('Erro', data.error || 'Erro ao inserir modalidade.');
       }
@@ -64,9 +66,13 @@ export default function InserirModalidade() {
           onChangeText={setUrlImagem}
         />
 
-        <TouchableOpacity style={styles.button} onPress={handleInsertModalidade}>
-          <Text style={styles.buttonText}>Inserir nova Modalidade</Text>
-        </TouchableOpacity>
+<TouchableOpacity
+        style={[styles.button, { marginTop: 40 }]}
+        onPress={() => router.push('/modalidades')}
+      >
+        <FontAwesome name="gear" size={24} color="white" />
+        <Text style={styles.buttonText}>adicionar local</Text>
+      </TouchableOpacity>
       </View>
     </View>
   );

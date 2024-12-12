@@ -73,7 +73,7 @@ export default function AddSportPoint() {
   
       if (response.ok) {
         Alert.alert('Sucesso', 'Ponto esportivo adicionado com sucesso!');
-        router.push('/'); // Redireciona para a página inicial ou outra página desejada
+        router.push('/pontos'); // Redireciona para a página inicial ou outra página desejada
       } else {
         Alert.alert('Erro', data.error || 'Erro ao adicionar ponto esportivo.');
       }
